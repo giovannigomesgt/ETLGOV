@@ -235,8 +235,8 @@ def uploadS3(task_instance):
     print('*'*150)
  
 triggerdag = TriggerDagRunOperator(
-    task_id="et_socios",
-    trigger_dag_id="et_socios")
+    task_id="de_qualificacoes",
+    trigger_dag_id="de_qualificacoes")
 
 with DAG('de_paises', start_date=datetime(2022,12,16),
     schedule_interval=None, catchup= False, tags=['TREINAMENTO','GOV']) as dag:
@@ -287,7 +287,7 @@ with DAG('de_paises', start_date=datetime(2022,12,16),
     # Crie uma tarefa do tipo "Trigger DAG" que trigga a DAG 'target_dag'
     trigger_task = TriggerDagRunOperator(
         task_id='trigger_target_dag',
-        trigger_dag_id='de_socios'
+        trigger_dag_id='de_qualificacoes'
     )
 
 

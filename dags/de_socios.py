@@ -229,10 +229,6 @@ def uploadS3(task_instance):
         #os.remove(files)
     print('*'*150)
  
-triggerdag = TriggerDagRunOperator(
-    task_id="etl",
-    trigger_dag_id="etl")
-
 with DAG('de_socios', start_date=datetime(2022,12,16),
 schedule_interval=None, catchup= False, tags=['TREINAMENTO','GOV']) as dag:
 #'0 0 * * 2-6'
