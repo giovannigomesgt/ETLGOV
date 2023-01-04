@@ -1,0 +1,140 @@
+from asyncio import Task
+from airflow.decorators import dag, task
+from airflow.operators.dummy import DummyOperator
+from datetime import datetime
+import os
+import requests
+from zipfile import ZipFile
+import re
+from tqdm import tqdm
+from bs4 import BeautifulSoup, SoupStrainer
+
+
+default_args = {
+    'owner': "Giovanni",
+    "depends_on_past": False,
+    'start_date': datetime (2022, 12, 12)
+}
+@dag(
+    default_args=default_args,
+    schedule_interval='@once',
+    catchup=False,
+    tags=['ETL','GOV'])
+
+def etl():
+    
+    inicio =  DummyOperator(task_id = "Start" )
+    fim =  DummyOperator(task_id = "Finish" )
+
+    @task
+    def carrega_links():
+        url = 'http://200.152.38.155/CNPJ/'
+        page = requests.get(url)    
+        data = page.text
+        soup = BeautifulSoup(data)
+        arquivos = []
+        for link in soup.find_all('a'):
+            if str(link.get('href')).endswith('.zip'): 
+                cam = link.get('href')
+                if not cam.startswith('http'):
+                    print(url+cam)
+                    arquivos.append(url+cam)
+                else:
+                    print(cam)
+        return arquivos
+
+    @task
+    def download_file(url):  
+        # URL do arquivo que deseja baixar
+        url = url
+        ##################################
+        file_name = url.split('/')[-1]
+        folder = file_name.replace('.zip','')
+        endereco = re.sub(u'[0123456789]', '',folder)
+        os.makedirs(endereco, exist_ok=True)
+        ##################################
+        checkfile = os.listdir(endereco)
+
+        if folder+'.zip' in checkfile or folder+'.CSV' in checkfile:
+            print('Arquivo já eixte')
+            #extrair_arquivo(f'{endereco}/{file_name}')
+            return f'{endereco}/{file_name}'
+        else:
+            # Obtém o tamanho do arquivo
+            response = requests.head(url)
+            file_size = int(response.headers.get("Content-Length"))
+
+            # Envia uma solicitação GET para baixar o arquivo
+            response = requests.get(url, stream=True)
+            print("Downloading %s" % file_name)
+
+            # Cria um objeto tqdm para mostrar a barra de progresso
+            progress_bar = tqdm(total=file_size, unit="B", unit_scale=True)
+
+            # Escreve o conteúdo do arquivo em um arquivo local
+            with open(f'{endereco}/{file_name}', "wb") as f:
+            #    open(file_name, "wb") as f:
+            #    open(f'./{endereco}/{file_name} as f:', 
+                for chunk in response.iter_content(chunk_size=1024):
+                    if chunk:  # filtra os pacotes vazios
+                        f.write(chunk)
+                        progress_bar.update(len(chunk))
+            # Fecha o objeto tqdm
+            progress_bar.close()
+            print('Download Concluido!')
+            return f'{endereco}/{file_name}'
+        
+    @task
+    def extrair_arquivo(path):
+        if os.path.exists(path):
+            compressedfile = ''
+            folder_file = path.split('/')[0]
+            filename = folder_file = path.split('/')[-1].replace('.zip','').split('/')[-1]
+            endereco = re.sub(u'[0123456789]', '',folder_file)
+            
+            # Abre o arquivo ZIP
+            with ZipFile(path, "r") as z:
+                # Imprime o nome de cada arquivo dentro do arquivo ZIP
+                for file in z.namelist():
+                    compressedfile = file
+                z.extractall(endereco)
+            os.remove(path)
+            
+            try:
+                # Renomeando Arquivo
+                caminho_do_arquivo = f'{endereco}/{compressedfile}'
+                novo_nome = f'{endereco}/{filename}.CSV'
+                os.rename(caminho_do_arquivo, novo_nome)
+                print(f'Arquivo {compressedfile} renomeado para {filename}.CSV')
+            except:
+                print('arquivo já Existe')
+            return novo_nome
+        else:
+            folder_file = path.split('/')[0]
+            filename = folder_file = path.split('/')[-1].replace('.zip','').split('/')[-1]
+            endereco = re.sub(u'[0123456789]', '',folder_file)
+            return f'{endereco}/{filename}.CSV'
+
+    @task
+    def upload_s3(file):
+        print(f'arquivo {file} enviado para o S3')
+        os.remove(file)
+        print(f'arquivo {file} deletado')
+        ###
+        extractedfile = next(os.walk('./Socios'), (None, None, []))
+        print(extractedfile)
+        print('-'*1000)
+
+    
+
+
+    load = carrega_links()
+    exec = download_file('http://200.152.38.155/CNPJ/Cnaes.zip')
+    extract = extrair_arquivo(exec)
+    upload = upload_s3(extract)
+
+    
+    inicio >> load >> exec >> [extract , upload] >> fim
+
+
+execucao = etl()
