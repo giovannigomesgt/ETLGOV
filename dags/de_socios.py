@@ -16,20 +16,20 @@ from airflow.operators.dagrun_operator import TriggerDagRunOperator
 from datetime import datetime
 from airflow.utils.trigger_rule import TriggerRule
 from os import walk
-
+from airflow.models import Variable
+import boto3
 
 ###
-import boto3
+
 aws_access_key_id = Variable.get('aws_access_key_id')
 aws_secret_access_key = Variable.get('aws_secret_access_key')
+
 client = boto3.client(
     's3',
     aws_access_key_id=aws_access_key_id,
     aws_secret_access_key=aws_secret_access_key
 )
 ###
-
-
 
 def getLinks():
     url = 'http://200.152.38.155/CNPJ/'
@@ -50,22 +50,18 @@ def getLinks():
                 print(cam)
     return links
    
-def cnaes(task_instance):
+def socios(task_instance):
     links = task_instance.xcom_pull(task_ids='Get_Links')
-    filescnaes = []
+    filessocios = []
     for lista in links:
-        if 'cnaes' in lista.lower():
-            filescnaes.append(lista)
-    return filescnaes
+        if 'socios' in lista.lower():
+            filessocios.append(lista)
+    return filessocios
 
 def versioning(task_instance):
-    #
     now = datetime.now()
-    #
-    file = task_instance.xcom_pull(task_ids='Find_Cnaes')
+    file = task_instance.xcom_pull(task_ids='Find_socios')
     url = 'https://dadosabertos.rfb.gov.br/CNPJ/'
-    #url = 'http://200.152.38.155/CNPJ/'
-    #https://dadosabertos.rfb.gov.br/CNPJ/
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
     table = soup.find('table')
@@ -94,9 +90,8 @@ def versioning(task_instance):
                 print('*'*100)
                 return 'Version_OK'
     
-
 def download(task_instance):
-    file = task_instance.xcom_pull(task_ids='Find_Cnaes')
+    file = task_instance.xcom_pull(task_ids='Find_socios')
     for item in file: # INICIA O PROCESSO DE DOWNLOAD
         #print(item)
         # URL do arquivo que deseja baixar
@@ -113,8 +108,6 @@ def download(task_instance):
         if folder+'.zip' in checkfile or folder+'.CSV' in checkfile:
             print('Arquivo já eixte')
             pass
-            #return f'{endereco}/{file_name}'
-            #extrair_arquivo(f'{endereco}/{file_name}')
         else:
             # Obtém o tamanho do arquivo
             response = requests.head(url)
@@ -159,7 +152,7 @@ def skip():
 
 def extract(task_instance):
     # RECEBE O NOME DA PASTA
-    folder = task_instance.xcom_pull(task_ids='Find_Cnaes')[0].split('/')[-1].replace('.zip','')
+    folder = task_instance.xcom_pull(task_ids='Find_socios')[0].split('/')[-1].replace('.zip','')
     #nomedoarquivo = folder.split('/')[-1].replace('.zip','')
     folder = re.sub(u'[0123456789]', '',folder)
 ##
@@ -193,8 +186,9 @@ def extract(task_instance):
                     os.rename(caminho_do_arquivo, novo_nome)
                     print(f'Arquivo {compressedfile} renomeado para {nomedoarquivo}.CSV')
                 except:
-                    print('arquivo já Existe')
-
+                    pass
+            else:
+                print('arquivo já Existe')
 
     else:
         print('*'*50)
@@ -204,10 +198,9 @@ def extract(task_instance):
 
     return 'Upload_to_S3'
 
-
 def uploadS3(task_instance):
     # RECEBE O NOME DA PASTA
-    file = task_instance.xcom_pull(task_ids='Find_Cnaes')[0].split('/')[-1].replace('.zip','')
+    file = task_instance.xcom_pull(task_ids='Find_socios')[0].split('/')[-1].replace('.zip','')
     file = re.sub(u'[0123456789]', '',file)
     # VERIFICA A EXISTÊNCIA DA PASTA
     if os.path.exists(file):
@@ -237,11 +230,12 @@ def uploadS3(task_instance):
     print('*'*150)
  
 triggerdag = TriggerDagRunOperator(
-    task_id="et_socios",
-    trigger_dag_id="et_socios")
+    task_id="etl",
+    trigger_dag_id="etl")
 
-with DAG('et_cnaes', start_date=datetime(2022,12,16),
-schedule_interval='0 0 * * 2-6', catchup= False, tags=['TREINAMENTO','GOV']) as dag:
+with DAG('de_socios', start_date=datetime(2022,12,16),
+schedule_interval=None, catchup= False, tags=['TREINAMENTO','GOV']) as dag:
+#'0 0 * * 2-6'
     # Task de Execução de Script Python
     fim =  DummyOperator(task_id = "fim", trigger_rule=TriggerRule.NONE_FAILED)
         
@@ -250,9 +244,9 @@ schedule_interval='0 0 * * 2-6', catchup= False, tags=['TREINAMENTO','GOV']) as 
         python_callable = getLinks
     )
 
-    taskdownloadcnaes = PythonOperator(
-        task_id = 'Find_Cnaes',
-        python_callable = cnaes
+    taskdownloadsocios = PythonOperator(
+        task_id = 'Find_socios',
+        python_callable = socios
     )
 
     taskversioning = BranchPythonOperator(
@@ -287,13 +281,12 @@ schedule_interval='0 0 * * 2-6', catchup= False, tags=['TREINAMENTO','GOV']) as 
     #download
 
     # Crie uma tarefa do tipo "Trigger DAG" que trigga a DAG 'target_dag'
-    trigger_task = TriggerDagRunOperator(
-        task_id='trigger_target_dag',
-        trigger_dag_id='et_socios'
-    )
+    # trigger_task = TriggerDagRunOperator(
+    #     task_id='trigger_target_dag',
+    #     trigger_dag_id='etl'
 
 
-taskgetLinks >> taskdownloadcnaes >> taskversioning >> [taskdownload, taskskip] >> taskextract >> tasks3 >> fim >> trigger_task
+taskgetLinks >> taskdownloadsocios >> taskversioning >> [taskdownload, taskskip] >> taskextract >> tasks3 >> fim #>> trigger_task
 
 
 
