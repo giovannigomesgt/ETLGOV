@@ -1,3 +1,5 @@
+### https://www.youtube.com/watch?v=39k2Sz9jZ2c&t=2415s
+
 1 - Criar o namespace:
     kubectl create namespace airflow
 2 - Adicionar repo apache:

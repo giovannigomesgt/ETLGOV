@@ -1,2 +1,14 @@
 #kubectl run my-python-pod --image=python:3.9-alpine --restart=Never
 #kubectl run python-pod --image=python:3.9-alpine --restart=Never -n airflow
+
+# kubectl exec -it airflow-statsd-64cdcfb8f8-p98gn -n airflow -- bash -c "pip install tqdm"
+
+
+# airflow-postgresql-0                 1/1     Running   0          11m
+# airflow-scheduler-6fbcf95968-pnsst   3/3     Running   0          11m
+
+
+
+
+
+kubectl exec -it airflow-scheduler-6fbcf95968-xs29s -n airflow -- bash -c "pip install tqdm"

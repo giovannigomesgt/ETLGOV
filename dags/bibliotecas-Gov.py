@@ -20,11 +20,11 @@ with DAG('bibliotecas', start_date=datetime(2022,12,16),
         python_callable = bibliotecas
     )
 
-    install_pandas = BashOperator(
+    install_tqdm = BashOperator(
         task_id='install_tqdm',
         bash_command='pip install tqdm',   
     )
 
     fim =  DummyOperator(task_id = "fim")
 
-taskbibioteca >> fim
+taskbibioteca >> install_tqdm >> fim

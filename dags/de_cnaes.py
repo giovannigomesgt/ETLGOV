@@ -1,11 +1,3 @@
-####
-
-
-
-###
-
-
-
 #from asyncio import Task
 from airflow.decorators import dag, task
 from airflow import DAG
@@ -36,7 +28,6 @@ client = boto3.client(
     aws_access_key_id=aws_access_key_id,
     aws_secret_access_key=aws_secret_access_key
 )
-###
 
 def getLinks():
     url = 'http://200.152.38.155/CNPJ/'
