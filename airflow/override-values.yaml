@@ -1,5 +1,5 @@
-defaultAirflowTag: "2.3.0"
-airflowVersion: "2.3.0"
+defaultAirflowTag: "2.5.0"
+airflowVersion: "2.5.0"
 executor: "KubernetesExecutor"
 # env:
 #   - name: AIRFLOW__LOGGING__REMOTE_LOGGING
@@ -32,7 +32,7 @@ dags:
     depth: 1
     maxFailures: 0
     subPath: "dags"
-    wait: 30
+    wait: 15
     containerName: git-sync
     uid: 65533
     securityContext: {}
