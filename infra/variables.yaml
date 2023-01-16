@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: airflow-variables
+    namespace: airflow
+data:
+  AIRFLOW_VAR_MY_S3_BUCKET: "my_s3_name"
+  requirements.txt: |-
+    boto3==1.24.0
+    apache-airflow-providers-amazon==6.1.0
+    tqdm==2.2.3

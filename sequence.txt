@@ -28,3 +28,9 @@ kurbenetes 1.25.2
 
 kubectl get svc -n airflow
 kubectl get pvc -n airflow
+
+
+
+
+kubectl exec -it airflow-scheduler-6fbcf95968-f9bjc -n airflow -- bash -c "pip install tqdm"
+kubectl exec -it airflow-statsd-64cdcfb8f8-2886v -n airflow -- bash -c "pip install tqdm"
