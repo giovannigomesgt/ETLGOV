@@ -1,0 +1,18 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: airflow-cluster
+nodes:
+- role: control-plane
+  image: kindest/node:v1.25.3
+- role: worker
+  image: kindest/node:v1.25.3
+  extraPortMappings:
+  - containerPort: 8080
+    hostPort: 8080
+    protocol: TCP
+kubeadmConfigPatches:
+- |
+  kind: InitConfiguration
+  nodeRegistration:
+    kubeletExtraArgs:
+      node-labels: "airflow=true"

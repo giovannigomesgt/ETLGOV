@@ -1,2 +1,5 @@
 requests
 tqdm
+zipfile36
+beautifulsoup4
+boto3

@@ -1,13 +1,8 @@
 ### https://www.youtube.com/watch?v=39k2Sz9jZ2c&t=2415s
 
 1 - Criar o namespace:
-    kubectl create namespace airflow
-2 - Adicionar repo apache:
-    helm repo add apache-airflow https://airflow.apache.org
-3 - atualizar:
-    helm repo update
-4 - pesquisar
-    helm search repo airflow
+    kubectl create namespace airflow | helm repo add apache-airflow https://airflow.apache.org | helm repo update
+
 5 - instalar airflow
     helm upgrade --install airflow apache-airflow/airflow --namespace airflow --create-namespace -f airflow/override-values.yaml --debug --timeout 60m0s
 
@@ -18,7 +13,7 @@ EXTRA:
 
 -----------------------------------------
 DESATIVAR:
-helm delete airflow -n airflow
+helm delete airflow -n airflow | kubectl delete namespace airflow | kind delete cluster --name airflow-cluster
 kubectl delete namespace airflow
 kubectl delete svc --all -n airflow
 kubectl delete pvc --all -n airflow
@@ -31,6 +26,5 @@ kubectl get pvc -n airflow
 
 
 
-
-kubectl exec -it airflow-scheduler-6fbcf95968-f9bjc -n airflow -- bash -c "pip install tqdm"
-kubectl exec -it airflow-statsd-64cdcfb8f8-2886v -n airflow -- bash -c "pip install tqdm"
+https://www.youtube.com/watch?v=IIp5BkWvjo4
+https://www.youtube.com/watch?v=39k2Sz9jZ2c&t=1126s
