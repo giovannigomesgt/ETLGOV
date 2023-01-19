@@ -1,15 +1,13 @@
-from airflow.decorators import dag, task
 from airflow import DAG
 from airflow.operators.dummy import DummyOperator
 from airflow.operators.python import PythonOperator, BranchPythonOperator
-from airflow.operators.bash import BashOperator
 from datetime import datetime
 import os
 import requests
 from zipfile import ZipFile
 import re
 from tqdm import tqdm
-from bs4 import BeautifulSoup, SoupStrainer
+from bs4 import BeautifulSoup
 #from time import sleep
 from airflow.operators.dagrun_operator import TriggerDagRunOperator
 from datetime import datetime
@@ -17,6 +15,7 @@ from airflow.utils.trigger_rule import TriggerRule
 from os import walk
 from airflow.models import Variable
 import boto3
+from pytz import timezone
 
 
 ###
@@ -59,6 +58,19 @@ def motivos(task_instance):
 def versioning(task_instance):
     now = datetime.now()
     file = task_instance.xcom_pull(task_ids='Find_Motivos')
+    objectname = file[0].split('/')[-1].replace('zip','CSV')
+    bucket_name = 'pottencial-datalake-dev-raw'
+    object_name = f"dados_publicos_cnpj/2022-2/Motivos/{objectname}"
+    try:
+        # Obtém informações do objeto
+        response = client.head_object(Bucket=bucket_name, Key=object_name)
+        # Imprime a data da última modificação
+        last_modified = response['LastModified'].replace(tzinfo=timezone('UTC'))
+    except:
+        last_modified = now.replace(tzinfo=timezone('UTC'))
+        print('Arquivo não encontrado')
+
+
     url = 'https://dadosabertos.rfb.gov.br/CNPJ/'
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -75,15 +87,17 @@ def versioning(task_instance):
     for i in versao:
         if file[0].split('/')[-1] in i['file']:
             date_object = datetime.strptime(i['version'], "%Y-%m-%d %H:%M")
-            if date_object < now:
+            date_object = date_object.replace(tzinfo=timezone('UTC'))
+
+            if date_object > last_modified:
                 print('*'*100)
-                print(f'Data no S3 {now}')
+                print(f'Data no S3 {last_modified}')
                 print(f'Ultima publicação no Gov {date_object}')
                 print('*'*100)
                 return 'Downloading'
             else:
                 print('*'*100)
-                print(f'Data no S3 {now}')
+                print(f'Data no S3 {last_modified}')
                 print(f'Ultima publicação no Gov {date_object}')
                 print('*'*100)
                 return 'Version_OK'
