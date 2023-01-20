@@ -1,15 +1,18 @@
 ### https://www.youtube.com/watch?v=39k2Sz9jZ2c&t=2415s
 
 1 - Criar o namespace:
-    kubectl create namespace airflow | helm repo add apache-airflow https://airflow.apache.org | helm repo update
+    kubectl create ns airflow | helm repo add apache-airflow https://airflow.apache.org | helm repo update
+    helm install airflow apache-airflow/airflow -n airflow --debug --timeout 10m0s
 
 5 - instalar airflow
     helm upgrade --install airflow apache-airflow/airflow --namespace airflow --create-namespace -f airflow/override-values.yaml --debug --timeout 60m0s
 
 6 - 
+helm install airflow apache-airflow/airflow --namespace ai
 
 EXTRA:
 6 - exportar arquivo de valores
+helm show values apache-airflow/airflow > values.yaml
 
 -----------------------------------------
 DESATIVAR:
@@ -26,5 +29,10 @@ kubectl get pvc -n airflow
 
 
 
+node:v1.25.2
+
 https://www.youtube.com/watch?v=IIp5BkWvjo4
 https://www.youtube.com/watch?v=39k2Sz9jZ2c&t=1126s
+
+
+kind create cluster --image kindest/node:v1.25.2
