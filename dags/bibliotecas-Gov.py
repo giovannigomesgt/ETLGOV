@@ -7,24 +7,20 @@ from airflow.operators.python import BranchPythonOperator
 
 
 
-def bibliotecas():
-    return 'install_tqdm'
+def install_dependencies():
+    import subprocess
+    subprocess.call(["pip", "install", "tqdm"])
 
 
 with DAG('bibliotecas', start_date=datetime(2022,12,16),
     schedule_interval=None, catchup= False, tags=['Bibliotecas']) as dag:
 
+    install_dependencies_task = PythonOperator(
+        task_id="install_dependencies",
+        python_callable=install_dependencies
+        )
 
-    taskbibioteca = BranchPythonOperator(
-        task_id = 'func_biblioteca',
-        python_callable = bibliotecas
-    )
-
-    install_tqdm = BashOperator(
-        task_id='install_tqdm',
-        bash_command='pip install tqdm',   
-    )
-
+    inicio =  DummyOperator(task_id = "inicio")
     fim =  DummyOperator(task_id = "fim")
 
-taskbibioteca >> install_tqdm >> fim
+inicio >> install_dependencies >> fim
