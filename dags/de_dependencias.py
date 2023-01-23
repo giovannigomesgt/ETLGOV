@@ -10,7 +10,7 @@ fim =  DummyOperator(task_id = "fim")
 
 def install_dependencies():
     import subprocess
-    subprocess.call(["pip", "install", "pandas"])
+    subprocess.call(["pip", "install", "tqdm"])
 
 dag = DAG(dag_id="install_dependencies", schedule_interval=None, start_date=datetime.now())
 
@@ -21,5 +21,6 @@ install_dependencies_task = PythonOperator(
 )
 
 
-inicio >> install_dependencies >> fim
+
+inicio >> install_dependencies_task >> fim
 
