@@ -17,7 +17,7 @@ fim =  DummyOperator(task_id = "fim")
 install_dependencies_task = PythonOperator(
     task_id="install_dependencies",
     python_callable=install_dependencies,
-    dag=dag,
+    dag=dag
 )
 
 inicio >> install_dependencies >> fim
