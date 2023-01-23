@@ -2,10 +2,6 @@ defaultAirflowTag: "2.5.0"
 airflowVersion: "2.5.0"
 executor: "KubernetesExecutor"
 
-extraEnvFrom: |
-  - configMapRef:
-      name: 'airflow-variables'
-
 scheduler:
   replicas: 2
 

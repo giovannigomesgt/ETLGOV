@@ -1,5 +1,6 @@
 from airflow.operators.python_operator import PythonOperator
 from airflow.models import DAG
+from airflow.operators.dummy import DummyOperator
 
 def install_dependencies():
     import subprocess
@@ -7,8 +8,14 @@ def install_dependencies():
 
 dag = DAG(dag_id="install_dependencies", schedule_interval=None)
 
+inicio =  DummyOperator(task_id = "inicio")
+fim =  DummyOperator(task_id = "fim")
+
 install_dependencies_task = PythonOperator(
     task_id="install_dependencies",
     python_callable=install_dependencies,
     dag=dag,
 )
+
+inicio >> install_dependencies >> fim
+
