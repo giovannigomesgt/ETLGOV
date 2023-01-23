@@ -1,4 +1,5 @@
 dependencies:
 - name: requirements
   version: "1.0.0"
+  #data: requirements.txt
   repository: "file://requirements.txt"
