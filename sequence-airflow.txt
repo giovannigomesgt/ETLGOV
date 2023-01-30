@@ -5,7 +5,7 @@
     helm install airflow apache-airflow/airflow -n airflow --debug --timeout 10m0s
 
 5 - instalar airflow
-    helm upgrade --install airflow apache-airflow/airflow --namespace airflow --create-namespace -f airflow/override-values.yaml --debug --timeout 60m0s
+    helm upgrade --install airflow apache-airflow/airflow --namespace airflow --create-namespace -f airflow/override.yaml --debug --timeout 60m0s
 
 6 - 
 helm install airflow apache-airflow/airflow --namespace ai
@@ -16,7 +16,7 @@ helm show values apache-airflow/airflow > values.yaml
 
 -----------------------------------------
 DESATIVAR:
-helm delete airflow -n airflow | kubectl delete namespace airflow | kind delete cluster --name airflow-cluster
+helm delete airflow -n airflow | kubectl delete namespace airflow
 kubectl delete namespace airflow
 kubectl delete svc --all -n airflow
 kubectl delete pvc --all -n airflow

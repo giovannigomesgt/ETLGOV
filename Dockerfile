@@ -1,7 +1,3 @@
-FROM python:3.8
-COPY . /app
-WORKDIR /app
-RUN pip install --upgrade pip
+FROM apache/airflow:2.5.0
+COPY requirements.txt .
 RUN pip install -r requirements.txt
-RUN pip install tqdm
-CMD ["python","main.py"]

@@ -1,16 +1,19 @@
-defaultAirflowTag: "2.5.0"
 airflowVersion: "2.5.0"
+defaultAirflowRepository: airflow-custom
+# Default airflow tag to deploy
+defaultAirflowTag: "1.0.0"
 
+executor: "CeleryExecutor"
 
 workers:
-  # Number of airflow celery workers in StatefulSet
   replicas: 3
 
-scheduler:
-  replicas: 2
+extraEnvFrom: |
+  - configMapRef:
+      name: 'airflow-variables'
 
 webserver:
-  replicas: 2
+  replicas: 1
   defaultUser:
     enabled: true
     role: Admin
@@ -21,10 +24,6 @@ webserver:
     password: admin
   service:
     type: LoadBalancer
-
-triggerer:
-  replicas: 1
-
 # redis:
 #   enabled: false
 
@@ -33,10 +32,6 @@ dags:
     enabled: true
     repo: https://github.com/giovannigomesgt/ETLGOV.git
     branch: main
-    rev: HEAD
-    depth: 1
-    maxFailures: 0
     subPath: "dags"
     wait: 15
-    containerName: git-sync
-    uid: 65533
+
