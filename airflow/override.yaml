@@ -3,17 +3,17 @@ defaultAirflowRepository: airflow-custom
 # Default airflow tag to deploy
 defaultAirflowTag: "1.0.0"
 
-executor: "CeleryExecutor"
+executor: "CeleryKubernetesExecutor"
 
-workers:
-  replicas: 3
+#CeleryKubernetesExecutor
+# workers:
+#   replicas: 3
 
 extraEnvFrom: |
   - configMapRef:
       name: 'airflow-variables'
 
 webserver:
-  replicas: 1
   defaultUser:
     enabled: true
     role: Admin

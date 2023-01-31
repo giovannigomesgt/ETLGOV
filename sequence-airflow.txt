@@ -1,14 +1,32 @@
 ### https://www.youtube.com/watch?v=39k2Sz9jZ2c&t=2415s
 
 1 - Criar o namespace:
-    kubectl create ns airflow | helm repo add apache-airflow https://airflow.apache.org | helm repo update
-    helm install airflow apache-airflow/airflow -n airflow --debug --timeout 10m0s
+    kubectl create ns airflow
+    
+2 - Adicionar repositório oficial:
+    helm repo add apache-airflow https://airflow.apache.org
+    
+    2.1 - Atualizar repositório:
+        helm repo update
+    2.2 - Fazer deploy do apache-airflow:
+        helm install airflow apache-airflow/airflow -n airflow --debug --timeout 10m0s
 
-5 - instalar airflow
+3 - Instalar Dependencias:
+    kubectl apply -f infra/dependencias.yaml -n airflow
+    kubectl apply -f infra/secrets.yaml -n airflow
+
+4 - Fazer build da imagem:
+    docker build -t airflow-custom:1.0.0 .
+
+5 - Carregar a imagem:
+    kind load docker-image airflow-custom:1.0.0 --name airflow-cluster
+
+6 - instalar airflow
     helm upgrade --install airflow apache-airflow/airflow --namespace airflow --create-namespace -f airflow/override.yaml --debug --timeout 60m0s
 
-6 - 
-helm install airflow apache-airflow/airflow --namespace ai
+
+
+
 
 EXTRA:
 6 - exportar arquivo de valores
@@ -16,10 +34,11 @@ helm show values apache-airflow/airflow > values.yaml
 
 -----------------------------------------
 DESATIVAR:
-helm delete airflow -n airflow | kubectl delete namespace airflow
+helm delete airflow -n airflow
 kubectl delete namespace airflow
 kubectl delete svc --all -n airflow
 kubectl delete pvc --all -n airflow
+kind delete cluser --name airflow-cluster
 eksctl delete cluster --region=us-east-1 --name=datagio
 
 kurbenetes 1.25.2

@@ -210,7 +210,7 @@ def uploadS3(task_instance):
                 #print(pathlocal)
                 print(f"Enviando {pathlocal} para o bucket 'pottencial-datalake-dev-raw' endereço da pasta: {paths3}")
                 client.upload_file(pathlocal, 'pottencial-datalake-dev-raw', paths3)
-                print(f'Arquivo {arquivo} envdiado!')
+                print(f'Arquivo {arquivo} Enviado!')
                 print(f'Excluindo ./{pathlocal}')
                 os.remove(f'./{pathlocal}')
                 print('*'*150)
