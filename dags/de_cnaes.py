@@ -68,7 +68,7 @@ def versioning(task_instance):
     except:
         hoje = now.replace(tzinfo=timezone('UTC'))
         # Subtraindo um dia da data:
-        um_dia = timedelta(days=1)
+        um_dia = timedelta(days=30)
         last_modified = hoje - um_dia
         print('Arquivo não encontrado')
 
