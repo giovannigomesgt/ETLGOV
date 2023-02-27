@@ -59,7 +59,7 @@ def versioning(task_instance):
     objectname = file[0].split('/')[-1].replace('zip','CSV')
 
     bucket_name = 'pottencial-datalake-dev-raw'
-    object_name = f"dados_publicos_cnpj/2022-2/Cnaes/{objectname}"
+    object_name = f"dados_publicos_cnpj/Cnaes/{objectname}"
     try:
         # Obtém informações do objeto
         response = client.head_object(Bucket=bucket_name, Key=object_name)

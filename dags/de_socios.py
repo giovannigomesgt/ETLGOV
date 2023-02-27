@@ -57,7 +57,7 @@ def versioning(task_instance):
     file = task_instance.xcom_pull(task_ids='Find_socios')
     objectname = file[0].split('/')[-1].replace('zip','CSV')
     bucket_name = 'pottencial-datalake-dev-raw'
-    object_name = f"dados_publicos_cnpj/2022-2/Socios/{objectname}"
+    object_name = f"dados_publicos_cnpj/Socios/{objectname}"
     try:
         # Obtém informações do objeto
         response = client.head_object(Bucket=bucket_name, Key=object_name)
