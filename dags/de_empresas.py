@@ -10,7 +10,7 @@ from tqdm import tqdm
 from bs4 import BeautifulSoup
 #from time import sleep
 from airflow.operators.dagrun_operator import TriggerDagRunOperator
-from datetime import datetime
+from datetime import datetime, timedelta
 from airflow.utils.trigger_rule import TriggerRule
 from os import walk
 from airflow.models import Variable
@@ -67,7 +67,10 @@ def versioning(task_instance):
             # Imprime a data da última modificação
         last_modified = response['LastModified'].replace(tzinfo=timezone('UTC'))
     except:
-        last_modified = now.replace(tzinfo=timezone('UTC'))
+        hoje = now.replace(tzinfo=timezone('UTC'))
+        # Subtraindo um dia da data:
+        um_dia = timedelta(days=30)
+        last_modified = hoje - um_dia
         print('Arquivo não encontrado')    
 
     url = 'https://dadosabertos.rfb.gov.br/CNPJ/'
@@ -205,7 +208,7 @@ def uploadS3(task_instance):
                 print(f'ARQUIVO ATUAL: {arquivo}')
                 pastas3 = diretorio.split('\\')[0].replace('.','').replace('/','')
                 pathlocal = f'{diretorio}/{arquivo}'
-                paths3 = f'dados_publicos_cnpj/2022-2/{pastas3}/{arquivo}'
+                paths3 = f'dados_publicos_cnpj/{pastas3}/{arquivo}'
                 #print(pathlocal)
                 print(f"Enviando {pathlocal} para o bucket 'pottencial-datalake-dev-raw' endereço da pasta: {paths3}")
                 client.upload_file(pathlocal, 'pottencial-datalake-dev-raw', paths3)

@@ -207,7 +207,7 @@ def uploadS3(task_instance):
                 print(f'ARQUIVO ATUAL: {arquivo}')
                 pastas3 = diretorio.split('\\')[0].replace('.','').replace('/','')
                 pathlocal = f'{diretorio}/{arquivo}'
-                paths3 = f'dados_publicos_cnpj/2022-2/{pastas3}/{arquivo}'
+                paths3 = f'dados_publicos_cnpj/{pastas3}/{arquivo}'
                 #print(pathlocal)
                 print(f"Enviando {pathlocal} para o bucket 'pottencial-datalake-dev-raw' endereço da pasta: {paths3}")
                 client.upload_file(pathlocal, 'pottencial-datalake-dev-raw', paths3)
