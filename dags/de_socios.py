@@ -131,7 +131,7 @@ def download(task_instance):
             print('*'*100)
 
             # Cria um objeto tqdm para mostrar a barra de progresso
-            progress_bar = tqdm(total=file_size, unit="B", unit_scale=True)
+            #progress_bar = tqdm(total=file_size, unit="B", unit_scale=True)
 
             # Escreve o conteúdo do arquivo em um arquivo local
             with open(f'{endereco}/{file_name}', "wb") as f:
@@ -140,10 +140,10 @@ def download(task_instance):
                 for chunk in response.iter_content(chunk_size=1024):
                     if chunk:  # filtra os pacotes vazios
                         f.write(chunk)
-                        progress_bar.update(len(chunk))
+                        #progress_bar.update(len(chunk))
 
             # Fecha o objeto tqdm
-            progress_bar.close()
+            #progress_bar.close()
             print('*'*100)
             print('Download Concluido!')
             print('*'*100)
