@@ -22,7 +22,7 @@
     kind load docker-image airflow-custom:1.0.0 --name airflow-cluster
 
 6 - instalar airflow
-    helm upgrade --install airflow apache-airflow/airflow --namespace airflow --create-namespace -f airflow/override.yaml --debug --timeout 60m0s
+    helm upgrade --install airflow apache-airflow/airflow --namespace airflow --create-namespace -f airflow/override.yaml --debug --timeout 20m0s
 
 
 
